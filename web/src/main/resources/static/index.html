@@ -88,22 +88,22 @@
                 <div class="tv-main-image d-flex align-items-center">
                     <div class="tv-tabs-wrap ml-3 mr-3">
                         <nav class="nav nav-tabs row ml-0 ml-lg-5" id="myTab" role="tablist">
-                            <a class="nav- nav-link bg-white text-uppercase col text-center rounded-0 active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">rastree su envío</a>
-                            <a class="nav- nav-link bg-white text-uppercase col text-center rounded-0" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">cotice su envío</a>
-                            <a class="nav- nav-link bg-white text-uppercase col text-center rounded-0" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">puntos de venta</a>
+                            <a class="nav- nav-link bg-white text-uppercase col text-center rounded-0 active" id="nav-trace-tab" data-toggle="tab" href="#nav-trace" role="tab" aria-controls="nav-trace" aria-selected="true">rastree su envío</a>
+                            <a class="nav- nav-link bg-white text-uppercase col text-center rounded-0" id="nav-quote-tab" data-toggle="tab" href="#nav-quote" role="tab" aria-controls="nav-quote" aria-selected="false">cotice su envío</a>
+                            <a class="nav- nav-link bg-white text-uppercase col text-center rounded-0" id="nav-buy-tab" data-toggle="tab" href="#nav-buy" role="tab" aria-controls="nav-buy" aria-selected="false">comprar tiquetes</a>
                         </nav>
                         <div class="tab-content ml-lg-5" id="nav-tabContent">
-                            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                            <div class="tab-pane fade show active" id="nav-trace" role="tabpanel" aria-labelledby="nav-trace-tab">
                                 <p class="mb-4">Realice aquí el seguimiento de sus envíos nacionales, internacionales y de carga. <span>Ingrese su número de guía o de referencia.</span> Puede ingresar hasta 8 números de guía separados por coma (,)</p>
                                 <form action="./index2.html">
                                     <div class="form-group mb-4">
-                                        <label class="text-uppercase" for="exampleInputEmail1">número de guía</label>
-                                        <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="">
+                                        <label class="text-uppercase" for="">número de guía</label>
+                                        <input type="email" class="form-control" id="" placeholder="">
                                     </div>
-                                    <button type="submit" class="btn btn-primary text-uppercase btn-lg col-12 pb-3 border-0">buscar</button>
+                                    <button type="submit" class="btn text-white text-uppercase btn-lg col-12 pb-3 border-0 tv-btn tv-bg-green">buscar</button>
                                 </form>
                             </div>
-                            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                            <div class="tab-pane fade" id="nav-quote" role="tabpanel" aria-labelledby="nav-quote-tab">
                                 <form>
                                     <div class="row">
                                         <div class="form-group col-sm-6 mb-4">
@@ -131,19 +131,44 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-primary text-uppercase btn-lg col-12 pb-3 border-0">cotizar</button>
+                                    <button type="button" class="btn text-white text-uppercase btn-lg col-12 pb-3 border-0 tv-btn tv-bg-green">cotizar</button>
                                 </form>
                             </div>
-                            <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
-                                <p class="mb-4">Realice aquí el seguimiento de sus envíos nacionales, internacionales y de carga. <span>Ingrese su número de guía o de referencia.</span> Puede ingresar hasta 8 números de guía separados por coma (,)</p>
-                                <form >
-                                    <div class="form-group mb-4">
-                                        <label class="text-uppercase" for="exampleInputEmail1">sector</label>
-                                        <select class="form-control" id="exampleFormControlSelect1">
-                                            <option>Seleccionar</option>
-                                        </select>
+                            <div class="tab-pane fade" id="nav-buy" role="tabpanel" aria-labelledby="nav-buy-tab">
+                                <form action="./index3.html">
+                                    <div class="row">
+                                        <div class="form-group col-sm-6 mb-4">
+                                            <label class="text-uppercase" for="exampleFormControlSelect1">origen</label>
+                                            <select class="form-control" id="exampleFormControlSelect1">
+                                                <option>Seleccionar</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-sm-6 mb-4">
+                                            <label class="text-uppercase" for="exampleFormControlSelect1">destino</label>
+                                            <select class="form-control" id="exampleFormControlSelect1">
+                                                <option>Seleccionar</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-sm-6 mb-4">
+                                            <label class="text-uppercase" for="">salida</label>
+                                            <input type="date" class="form-control" id="">
+                                        </div>
+                                        <div class="form-group col-sm-6 mb-4">
+                                            <label class="text-uppercase" for="">regreso</label>
+                                            <input type="date" class="form-control" id="">
+                                        </div>
+                                        <div class="form-group col-sm-6 mb-4">
+                                            <div class="radio">
+                                                <input id="radio-1" name="radio" type="radio" checked>
+                                                <label for="radio-1" class="radio-label m-0">Ida y Vuelta</label>
+                                            </div>
+                                            <div class="radio">
+                                                <input id="radio-2" name="radio" type="radio">
+                                                <label for="radio-2" class="radio-label m-0">Solo Ida</label>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <button type="submit" class="btn btn-primary text-uppercase btn-lg col-12 pb-3 border-0">buscar</button>
+                                    <button type="submit" class="btn text-white text-uppercase btn-lg col-12 pb-3 border-0 tv-btn tv-bg-green">buscar</button>
                                 </form>
                             </div>
                         </div>
