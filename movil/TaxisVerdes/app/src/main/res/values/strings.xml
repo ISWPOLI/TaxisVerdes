@@ -1,4 +1,16 @@
 <resources>
-    <string name="app_name">TaxisVerdes</string>
+    <string name="app_name">Taxis Verdes</string>
     <string name="title_activity_home_map">Map</string>
+    <string name="medios_de_pago">Medios de Pago</string>
+    <string name="open_drawer">Abrir el cajón</string>
+    <string name="close_drawer">Cerrar el cajón</string>
+    <string name="genericError">Error General</string>
+    <string name="from">Desde</string>
+    <string name="to">Hasta</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="home">Inicio</string>
+    <string name="pedir_taxi">Pedir Taxi</string>
 </resources>
