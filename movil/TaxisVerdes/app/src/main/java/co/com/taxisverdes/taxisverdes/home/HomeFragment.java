@@ -2,143 +2,136 @@ package co.com.taxisverdes.taxisverdes.home;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import co.com.taxisverdes.taxisverdes.R;
+import co.com.taxisverdes.taxisverdes.service.location.FetchAddressIntentService;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link HomeFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class HomeFragment extends Fragment implements OnMapReadyCallback, LocationListener {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import static co.com.taxisverdes.taxisverdes.service.location.FetchAddressIntentService.LOCATION_DATA_EXTRA;
+import static co.com.taxisverdes.taxisverdes.service.location.FetchAddressIntentService.RECEIVER;
+import static co.com.taxisverdes.taxisverdes.service.location.FetchAddressIntentService.RESULT_DATA_KEY;
+import static co.com.taxisverdes.taxisverdes.utils.NotificationUtils.showGeneralError;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class HomeFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnMapClickListener {
 
-    private OnFragmentInteractionListener mListener;
+    public static final String ADDRESS_TYPE = "address-type";
+
+    private static final long MIN_TIME = 400;
+    private static final float MIN_DISTANCE = 1;
 
     private GoogleMap mMap;
-    private LocationManager locationManager;
-    private static final long MIN_TIME = 400;
-    private static final float MIN_DISTANCE = 1000;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationManager mLocationManager;
+    private Marker mOriginLocationMarker;
+    private Marker mDestinationLocationMarker;
+    private boolean mChoosingOrigin;
+    private boolean mChoosingDestination;
+    private View mInflatedView;
+    private TextView mOriginTextView;
+    private TextView mDestinationTextView;
+    private AddressResultReceiver mResultReceiver;
 
-    public HomeFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+    public enum AddressSearchType {
+        ORIGIN, DESTINATION
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        mInflatedView = inflater.inflate(R.layout.fragment_home, container, false);
+        return mInflatedView;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-
-        mapFragment.getMapAsync(this);
-
         super.onActivityCreated(savedInstanceState);
+
+        findViews();
+        addListenersToViews();
+        configureGeocoderReceiver();
+
+        mLocationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+    private void configureGeocoderReceiver() {
+        mResultReceiver = new AddressResultReceiver(new Handler());
+    }
+
+    private void addListenersToViews() {
+        mOriginTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                mChoosingOrigin = hasFocus;
+            }
+        });
+        mDestinationTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                mChoosingDestination = hasFocus;
+            }
+        });
+    }
+
+    private void updateOriginAddress() {
+        if (mOriginLocationMarker != null) {
+            requestAddress(mOriginLocationMarker.getPosition(), AddressSearchType.ORIGIN);
         }
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+    private void updateDestinationAddress() {
+        if (mDestinationLocationMarker != null) {
+            requestAddress(mDestinationLocationMarker.getPosition(), AddressSearchType.DESTINATION);
         }
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    private void requestAddress(LatLng latLng, AddressSearchType type) {
+        Location location = new Location(LocationManager.GPS_PROVIDER);
+        location.setLatitude(latLng.latitude);
+        location.setLongitude(latLng.longitude);
+        requestAddress(location, type);
+    }
+
+    private void findViews() {
+        mOriginTextView = mInflatedView.findViewById(R.id.homeOrigin);
+        mDestinationTextView = mInflatedView.findViewById(R.id.homeDestination);
     }
 
     @Override
     public void onLocationChanged(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
         mMap.animateCamera(cameraUpdate);
-        locationManager.removeUpdates(this);
     }
 
     @Override
@@ -156,23 +149,103 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
 
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        try {
+            mMap = googleMap;
+            mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.map_style));
+            mMap.setOnMapClickListener(this);
+            if (ActivityCompat
+                    .checkSelfPermission(getContext(),
+                            Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getContext(),
+                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            mMap.getUiSettings().setCompassEnabled(true);
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+        } catch (Exception e) {
+            showGeneralError(e);
+        }
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+    public void onMapClick(LatLng selectedPosition) {
+        if (mChoosingOrigin) {
+            createOrUpdateOriginMarker(selectedPosition);
+        } else if (mChoosingDestination) {
+            createOrUpdateDestinationMarker(selectedPosition);
+        }
+    }
+
+    private void createOrUpdateOriginMarker(LatLng selectedPosition) {
+        if (mOriginLocationMarker == null) {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(selectedPosition);
+            markerOptions.title(getString(R.string.homeOriginMarkerLabel));
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(76));
+            mOriginLocationMarker = mMap.addMarker(markerOptions);
+        } else {
+            mOriginLocationMarker.setPosition(selectedPosition);
+        }
+        mOriginLocationMarker.showInfoWindow();
+        updateOriginAddress();
+    }
+
+    private void createOrUpdateDestinationMarker(LatLng selectedPosition) {
+        if (mDestinationLocationMarker == null) {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(selectedPosition);
+            markerOptions.title(getString(R.string.homeDestinationMarkerLabel));
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(76));
+            mDestinationLocationMarker = mMap.addMarker(markerOptions);
+        } else {
+            mDestinationLocationMarker.setPosition(selectedPosition);
+        }
+        mDestinationLocationMarker.showInfoWindow();
+        updateDestinationAddress();
+    }
+
+    private void requestAddress(Location location, AddressSearchType type) {
+        Intent intent = new Intent(getActivity(), FetchAddressIntentService.class);
+
+        intent.putExtra(RECEIVER, mResultReceiver);
+        intent.putExtra(LOCATION_DATA_EXTRA, location);
+        intent.putExtra(ADDRESS_TYPE, type);
+
+        getActivity().startService(intent);
+    }
+
+    private class AddressResultReceiver extends ResultReceiver {
+        AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            String addressOutput = resultData.getString(RESULT_DATA_KEY);
+            AddressSearchType searchType = AddressSearchType.valueOf(resultData.getString(ADDRESS_TYPE));
+
+            switch (searchType) {
+                case ORIGIN:
+                    updateOriginAddress(addressOutput);
+                    break;
+                case DESTINATION:
+                    updateDestinationAddress(addressOutput);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void updateOriginAddress(String addressOutput) {
+        mOriginTextView.setText(addressOutput);
+    }
+
+    private void updateDestinationAddress(String addressOutput) {
+        mDestinationTextView.setText(addressOutput);
     }
 }

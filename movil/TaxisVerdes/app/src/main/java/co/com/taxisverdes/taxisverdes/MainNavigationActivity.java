@@ -1,6 +1,5 @@
 package co.com.taxisverdes.taxisverdes;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,7 +15,7 @@ import android.view.MenuItem;
 import co.com.taxisverdes.taxisverdes.home.HomeFragment;
 import co.com.taxisverdes.taxisverdes.utils.NotificationUtils;
 
-public class MainNavigationActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener {
+public class MainNavigationActivity extends AppCompatActivity {
 
     private static final String TAG = MainNavigationActivity.class.getName();
     private Toolbar toolbar;
@@ -119,10 +118,5 @@ public class MainNavigationActivity extends AppCompatActivity implements HomeFra
             NotificationUtils.showGeneralError(e);
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-        // TODO
     }
 }

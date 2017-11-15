@@ -13,4 +13,11 @@
     <string name="title_activity_maps">Map</string>
     <string name="home">Inicio</string>
     <string name="pedir_taxi">Pedir Taxi</string>
+    <string name="homeOriginMarkerLabel">Origen</string>
+    <string name="homeDestinationMarkerLabel">Destino</string>
+    <string name="service_not_available">Servicio no disponible</string>
+    <string name="invalid_lat_long_used">Ubicación inválida</string>
+    <string name="no_address_found">No se encontró ninguna dirección.</string>
+    <string name="address_found">Dirección encontrada</string>
+    <string name="no_location_data_provided">No ubicación.</string>
 </resources>
