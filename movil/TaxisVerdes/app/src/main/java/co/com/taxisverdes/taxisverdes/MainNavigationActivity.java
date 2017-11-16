@@ -71,6 +71,7 @@ public class MainNavigationActivity extends AppCompatActivity {
                 fragmentClass = HomeFragment.class;
                 break;
             case R.id.menuMediosDePago:
+                fragmentClass = Drivers.class;
                 break;
             default:
                 return;
