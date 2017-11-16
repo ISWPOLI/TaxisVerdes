@@ -88,10 +88,7 @@ public class FetchAddressIntentService extends IntentService {
         } else {
             Address address = addresses.get(0);
             ArrayList<String> addressFragments = new ArrayList<>();
-
-            for (int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
-                addressFragments.add(address.getAddressLine(i));
-            }
+            addressFragments.add(address.getAddressLine(0));
             Log.i(TAG, getString(R.string.address_found));
             deliverResultToReceiver(SUCCESS_RESULT,
                     TextUtils.join(System.getProperty("line.separator"), addressFragments), type);

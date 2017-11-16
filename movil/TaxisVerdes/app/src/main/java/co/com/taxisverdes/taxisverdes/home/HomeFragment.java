@@ -1,6 +1,7 @@
 package co.com.taxisverdes.taxisverdes.home;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,11 +12,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -30,6 +34,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import co.com.taxisverdes.taxisverdes.R;
 import co.com.taxisverdes.taxisverdes.service.location.FetchAddressIntentService;
@@ -56,7 +61,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
     private View mInflatedView;
     private TextView mOriginTextView;
     private TextView mDestinationTextView;
+    private ImageButton mGoToMyLocationImageButton;
+    private ConstraintLayout mRequestTaxiButton;
     private AddressResultReceiver mResultReceiver;
+    private ProgressBar mProgressBar;
 
     public enum AddressSearchType {
         ORIGIN, DESTINATION
@@ -93,14 +101,65 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
                 mChoosingOrigin = hasFocus;
+                if (mOriginLocationMarker != null) {
+                    animateCameraToLocation(mOriginLocationMarker.getPosition());
+                }
             }
         });
         mDestinationTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
                 mChoosingDestination = hasFocus;
+                if (mDestinationLocationMarker != null) {
+                    animateCameraToLocation(mDestinationLocationMarker.getPosition());
+                }
             }
         });
+        mGoToMyLocationImageButton.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("MissingPermission")
+            @Override
+            public void onClick(View view) {
+                mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        animateCameraToLocation(location);
+                    }
+                });
+            }
+        });
+        mRequestTaxiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                requestTaxi();
+            }
+        });
+    }
+
+    private void requestTaxi() {
+        mProgressBar.setVisibility(View.VISIBLE);
+        // Start long running operation in a background thread
+        new Thread(new Runnable() {
+            private int progressStatus = 0;
+            private Handler handler = new Handler();
+
+            public void run() {
+                while (progressStatus < 100) {
+                    progressStatus += 1;
+                    handler.post(new Runnable() {
+                        public void run() {
+                            mProgressBar.setProgress(progressStatus);
+                        }
+                    });
+                    try {
+                        // Sleep for 200 milliseconds.
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                mProgressBar.setVisibility(View.INVISIBLE);
+            }
+        }).start();
     }
 
     private void updateOriginAddress() {
@@ -125,11 +184,32 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
     private void findViews() {
         mOriginTextView = mInflatedView.findViewById(R.id.homeOrigin);
         mDestinationTextView = mInflatedView.findViewById(R.id.homeDestination);
+        mGoToMyLocationImageButton = mInflatedView.findViewById(R.id.homeGoToMyLocationButton);
+        mRequestTaxiButton = mInflatedView.findViewById(R.id.homeRequestTaxiButton);
+        mProgressBar = mInflatedView.findViewById(R.id.progressBar);
     }
 
     @Override
     public void onLocationChanged(Location location) {
+        animateCameraToLocation(location);
+    }
+
+    private void moveCameraToLocation(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        moveCameraToLocation(latLng);
+    }
+
+    private void moveCameraToLocation(LatLng latLng) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+        mMap.moveCamera(cameraUpdate);
+    }
+
+    private void animateCameraToLocation(Location location) {
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        animateCameraToLocation(latLng);
+    }
+
+    private void animateCameraToLocation(LatLng latLng) {
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
         mMap.animateCamera(cameraUpdate);
     }
@@ -165,7 +245,26 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
             mMap.getUiSettings().setCompassEnabled(true);
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+            mMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+                @Override
+                public void onCameraIdle() {
+                    LatLng cameraPosition = mMap.getCameraPosition().target;
+                    if (mChoosingOrigin) {
+                        createOrUpdateOriginMarker(cameraPosition);
+                    } else if (mChoosingDestination) {
+                        createOrUpdateDestinationMarker(cameraPosition);
+                    }
+                }
+            });
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
+            mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    if (location != null) {
+                        moveCameraToLocation(location);
+                    }
+                }
+            });
         } catch (Exception e) {
             showGeneralError(e);
         }

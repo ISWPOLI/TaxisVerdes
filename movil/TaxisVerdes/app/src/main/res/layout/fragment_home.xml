@@ -5,14 +5,38 @@
     android:layout_height="match_parent"
     tools:context="co.com.taxisverdes.taxisverdes.home.HomeFragment">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/map_margin_top"
-        tools:context="co.com.taxisverdes.taxisverdes.MainNavigationActivity" />
+        android:layout_marginTop="@dimen/map_margin_top">
+
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="co.com.taxisverdes.taxisverdes.MainNavigationActivity" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_my_location_black_24dp" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="false"
+            android:max="100"
+            android:minHeight="50dp"
+            android:minWidth="200dp"
+            android:progress="1"
+            android:visibility="invisible" />
+    </FrameLayout>
+
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -41,8 +65,8 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="2"
                     android:layout_marginLeft="10dp"
+                    android:layout_weight="2"
                     android:gravity="center"
                     android:text="@string/from" />
 
@@ -50,13 +74,20 @@
                     android:id="@+id/homeOrigin"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="30dp"
                     android:layout_weight="7"
                     android:background="@drawable/edit_text_bottom_line"
-                    android:drawableRight="@drawable/ic_my_location_black_24dp"
                     android:ems="10"
                     android:inputType="text"
                     android:text="" />
+
+                <ImageButton
+                    android:id="@+id/homeGoToMyLocationButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="-80dp"
+                    android:src="@drawable/ic_my_location_black_24dp" />
 
             </LinearLayout>
 
@@ -68,8 +99,8 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="2"
                     android:layout_marginLeft="10dp"
+                    android:layout_weight="2"
                     android:gravity="center"
                     android:text="@string/to" />
 
@@ -77,10 +108,10 @@
                     android:id="@+id/homeDestination"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="30dp"
                     android:layout_weight="7"
                     android:background="@android:color/transparent"
-                    android:drawableRight="@drawable/ic_add_box_black_24dp"
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:text="" />
@@ -89,14 +120,15 @@
         </LinearLayout>
 
         <android.support.constraint.ConstraintLayout
+            android:id="@+id/homeRequestTaxiButton"
             android:layout_width="@dimen/pedir_taxi_box_width"
             android:layout_height="@dimen/pedir_taxi_box_height"
+            android:background="@drawable/rounded_corner"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.928"
-            android:background="@drawable/rounded_corner">
+            app:layout_constraintVertical_bias="0.928">
 
             <ImageView
                 android:id="@+id/imageView"
