@@ -5,49 +5,107 @@
     tools:context="co.com.taxisverdes.taxisverdes.Drivers">
 
 
+<android.support.v7.widget.LinearLayoutCompat
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
 
     <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/card_view"
+        android:id="@+id/masterCard"
         android:layout_width="match_parent"
-        android:layout_height="380dp"
-        android:layout_margin="8dp">
+        android:layout_height="230dp"
+        android:layout_margin="5dp"
+        android:paddingTop="50dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/thumbnail"
+                android:id="@+id/imgMasterCard"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="150dp"
                 android:layout_alignParentTop="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/carr" />
+                android:src="@drawable/mastercard" />
 
             <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
+                android:id="@+id/titleMasterCard"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/thumbnail"
+                android:layout_below="@+id/imgMasterCard"
                 android:maxLines="3"
                 android:padding="8dp"
-                android:text="Prueba"
+                android:text="MasterCard"
                 android:textColor="#222"
                 android:textStyle="bold"
-                android:textSize="22dp" />
+                android:textSize="22dp"
+                android:textAlignment="center"/>
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/title"
+                android:layout_below="@+id/titleMasterCard"
                 android:maxLines="3"
                 android:padding="8dp"
-                android:text="Prueba"
+                android:text="****8490"
                 android:textColor="#666"
-                android:textSize="14dp" />
+                android:textSize="14dp"
+                android:textAlignment="center"/>
 
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/Visa"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:layout_margin="5dp"
+        android:layout_below="@+id/masterCard">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imgVisa"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_alignParentTop="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/visa" />
+
+            <TextView
+                android:id="@+id/titleVisa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/imgVisa"
+                android:maxLines="3"
+                android:padding="8dp"
+                android:text="Visa"
+                android:textColor="#222"
+                android:textStyle="bold"
+                android:textSize="22dp"
+                android:textAlignment="center"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/titleVisa"
+                android:maxLines="3"
+                android:padding="8dp"
+                android:text="****8490"
+                android:textColor="#666"
+                android:textSize="14dp"
+                android:textAlignment="center"/>
+
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+</android.support.v7.widget.LinearLayoutCompat>
+
 
 </FrameLayout>
