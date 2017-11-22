@@ -9,5 +9,9 @@
             android:id="@+id/menuMediosDePago"
             android:icon="@drawable/ic_credit_card"
             android:title="@string/medios_de_pago" />
+        <item
+            android:id="@+id/menuUltimosViajes"
+            android:icon="@drawable/ic_local_taxi_black_24dp"
+            android:title="@string/ultimos_viajes" />
     </group>
 </menu>

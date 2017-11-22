@@ -2,6 +2,7 @@
     <string name="app_name">Taxis Verdes</string>
     <string name="title_activity_home_map">Map</string>
     <string name="medios_de_pago">Medios de Pago</string>
+    <string name="ultimos_viajes">Ultimos Viajes</string>
     <string name="open_drawer">Abrir el cajón</string>
     <string name="close_drawer">Cerrar el cajón</string>
     <string name="genericError">Error General</string>

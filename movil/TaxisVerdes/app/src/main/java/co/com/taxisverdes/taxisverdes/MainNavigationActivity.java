@@ -73,6 +73,8 @@ public class MainNavigationActivity extends AppCompatActivity {
             case R.id.menuMediosDePago:
                 fragmentClass = Drivers.class;
                 break;
+            case R.id.menuUltimosViajes:
+                break;
             default:
                 return;
         }
